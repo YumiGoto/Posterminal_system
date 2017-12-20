@@ -321,7 +321,7 @@ public class POSTerminalApp {
 		customerDisplayIF.displayLowerMessage(Integer.toString(totalPrice), AbstractedCustomerDisplayIF.Alignment.RIGHT);
 
 		// お預かりの入力を求める。
-		PaymentDialog paymentDialog = new PaymentDialog(frame, totalPrice);
+		PaymentDialog paymentDialog = new PaymentDialog(frame, totalPrice, point);
 		paymentDialog.setVisible(true);
 
 		// お預かりの入力がキャンセルされた場合は決済もキャンセルする。
@@ -347,6 +347,8 @@ public class POSTerminalApp {
 
 		// データベースを更新する。
 		//@@@ 未実装
+
+		
 
 		// 商品チェック画面を決済済み状態にする。
 		checkArticlesScreenPanel.setState(CheckArticlesScreenPanelState.PaymentFinished);
