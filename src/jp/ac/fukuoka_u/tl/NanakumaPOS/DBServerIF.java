@@ -140,8 +140,8 @@ public class DBServerIF {
 			if(ex.getErrorCode() == 1062) {
 				throw new DBServerIFException("この会員情報はすでに登録済みです。");
 			}
-			
-			else 
+
+			else
 			*/
 			throw new DBServerIFException("SQLException: " + ex.getMessage());
 		}
