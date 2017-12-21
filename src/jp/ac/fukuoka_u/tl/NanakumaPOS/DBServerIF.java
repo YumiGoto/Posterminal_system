@@ -79,7 +79,7 @@ public class DBServerIF {
 		}
 		return article;
 	}
-
+	
 	/*
 	 * 会員番号 membershipID の会員を検索する。
 	 */
@@ -186,6 +186,22 @@ public class DBServerIF {
 		catch (SQLException ex) {
 			throw new DBServerIFException("SQLException: " + ex.getMessage());
 		}
+	}
+	
+	/* 
+	 * ポイントを付与する。 
+	*/ 
+	public void point_granted(String memberID, int point) throws DBServerIFException {
+		try {
+			Statement stmt = conn.createStatement();
+			String sql = "update membertbl set point=" + point + " where id = '" + memberID + "';";
+			stmt.executeUpdate(sql);
+			stmt.close();
+		}
+		catch (SQLException ex) {
+			throw new DBServerIFException("SQLException: " + ex.getMessage());
+		}
+		
 	}
 
 }

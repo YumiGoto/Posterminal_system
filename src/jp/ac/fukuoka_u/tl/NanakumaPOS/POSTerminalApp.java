@@ -313,9 +313,11 @@ public class POSTerminalApp {
 	public Boolean paymentRequested() {
 		// 決済対象商品販売の合計金額を得る。
 		int totalPrice = salesUnderChecking.getTotalPrice();
+		int point = -1;
+		if(memberUnderChecking!=null) {
+			point = memberUnderChecking.getPoint();
+		}
 
-	
-		
 		// カスタマディスプレイに合計金額を表示する。
 		customerDisplayIF.displayUpperMessage("合計金額", AbstractedCustomerDisplayIF.Alignment.LEFT);
 		customerDisplayIF.displayLowerMessage(Integer.toString(totalPrice), AbstractedCustomerDisplayIF.Alignment.RIGHT);
@@ -334,6 +336,11 @@ public class POSTerminalApp {
 		// おつりを計算する。
 		int changePrice = paidPrice - totalPrice;
 
+		if(memberUnderManagement!=null) {
+			// ポイント付与額を計算する。
+			point += (int)((totalPrice - paymentDialog.getPaidPoint())*0.01);
+		}
+
 		// お預かり額とおつりを商品チェック画面に表示する。
 		checkArticlesScreenPanel.setPaidPrice(paidPrice);
 		checkArticlesScreenPanel.setChangePrice(changePrice);
@@ -347,8 +354,17 @@ public class POSTerminalApp {
 
 		// データベースを更新する。
 		//@@@ 未実装
-
-		
+		try {
+			if(memberUnderManagement!=null) {
+				dbServerIF.point_granted(memberUnderManagement.getID(), point);
+			}
+		}
+		catch (DBServerIFException ex) {
+			// データベースのアクセスに問題がある場合，問題の発生を店員に知らせ
+			// る。
+			JOptionPane.showMessageDialog(frame, ex.getMessage(), "エラー", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
 
 		// 商品チェック画面を決済済み状態にする。
 		checkArticlesScreenPanel.setState(CheckArticlesScreenPanelState.PaymentFinished);
