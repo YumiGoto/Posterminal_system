@@ -129,9 +129,7 @@ public class DBServerIF {
 		}
 		try {
 			Statement stmt = conn.createStatement();
-			String sql = "insert into membertbl values (" + member.getID() + "," + member.getName() + ",'" + gender + "'," + member.getGender() + ");";
-			stmt.executeUpdate(sql);
-			sql = "insert into purchaseHistorytbl values (" + member.getID() + ");";
+			String sql = "insert into membertbl values ('" + member.getID() + "','" + member.getName() + "','" + member.getFurigana() + "','" + gender + "',0);";
 			stmt.executeUpdate(sql);
 			stmt.close();
 		}
