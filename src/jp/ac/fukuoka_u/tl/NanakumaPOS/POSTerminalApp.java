@@ -444,9 +444,18 @@ public class POSTerminalApp {
 	 */
 	public Boolean memberDeletionRequested(String memberID) {
 		//@@@ データベースに会員削除を依頼する部分は未実装。
-		
-		memberUnderManagement = null;
-		memberManagementScreenPanel.memberUnderManagementChanged();
+		try {
+			dbServerIF.deleteMember(memberID);
+			memberUnderManagement = null;
+			memberManagementScreenPanel.memberUnderManagementChanged();
+		}
+		catch (DBServerIFException ex) {
+			// データベースのアクセスに問題がある場合，問題の発生を店員に知らせ
+			// る。
+			JOptionPane.showMessageDialog(frame, ex.getMessage(), "エラー", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+
 		return true;
 	}
 
