@@ -199,7 +199,7 @@ public class DBServerIF {
 	/*
 	 * 購入した商品の情報を商品履歴に追加する。
 	 */
-	public void updateArticle(String memberID, Sale article) throws DBServerIFException {
+	public void updateSales(String memberID, Sale article) throws DBServerIFException {
 		try {
 			Statement stmt = conn.createStatement();
 			String sql = "insert into salesHistorytbl values('"  + memberID + "', '" + article.getArticleCode() + "', " + article.getSalesQuantity()  + ", curdate());";

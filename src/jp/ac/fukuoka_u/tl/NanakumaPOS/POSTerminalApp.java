@@ -201,7 +201,7 @@ public class POSTerminalApp {
 		memberUnderManagement = null;
 		memberManagementScreenPanel.memberUnderManagementChanged();
 		// 会員管理画面の状態を何もしていない状態にする。
-		memberManagementScreenPanel.setState(MemberManagementScreenPanelState.Showing);
+		memberManagementScreenPanel.setState(MemberManagementScreenPanelState.NoOperation);
 		// 会員管理画面を選択する。
 		cardLayout.show(basePanel,  "MemberManagementScreen");
 		return true;
@@ -314,32 +314,54 @@ public class POSTerminalApp {
 		// 決済対象商品販売の合計金額を得る。
 		int totalPrice = salesUnderChecking.getTotalPrice();
 		int point = -1;
-		if(memberUnderChecking!=null) {
-			point = memberUnderChecking.getPoint();
-		}
 
 		// カスタマディスプレイに合計金額を表示する。
 		customerDisplayIF.displayUpperMessage("合計金額", AbstractedCustomerDisplayIF.Alignment.LEFT);
 		customerDisplayIF.displayLowerMessage(Integer.toString(totalPrice), AbstractedCustomerDisplayIF.Alignment.RIGHT);
 
+		// 会員ならポイント入力を求める。
+		if(memberUnderChecking!=null) {
+			point = memberUnderChecking.getPoint();
+			PaymentDialog paymentDialog = new PaymentDialog(frame, totalPrice, point);
+			paymentDialog.setVisible(true);
+
+			// ポイント入力がキャンセルされた場合は決済もキャンセルする。
+			if (!paymentDialog.isConfirmed())
+				return false;
+
+			// 利用ポイントを得る。
+			int paidPoint = paymentDialog.getPaidPrice();
+
+			// 合計金額を、ポイント支払額を差し引いた値に変更する。
+			totalPrice = totalPrice - paidPoint;
+
+			// ポイント付与額を計算する。
+			point += (int)(totalPrice*0.01);
+
+
+			// カスタマディスプレイにポイント支払額を差し引いた合計金額を表示する。
+			customerDisplayIF.displayLowerMessage(Integer.toString(totalPrice), AbstractedCustomerDisplayIF.Alignment.RIGHT);
+
+		}
+
+
+
 		// お預かりの入力を求める。
-		PaymentDialog paymentDialog = new PaymentDialog(frame, totalPrice, point);
+		PaymentDialog paymentDialog = new PaymentDialog(frame, totalPrice, -1);
 		paymentDialog.setVisible(true);
 
 		// お預かりの入力がキャンセルされた場合は決済もキャンセルする。
 		if (!paymentDialog.isConfirmed())
 			return false;
 
+
 		// お預かり額を得る。
 		int paidPrice = paymentDialog.getPaidPrice();
+
 
 		// おつりを計算する。
 		int changePrice = paidPrice - totalPrice;
 
-		if(memberUnderManagement!=null) {
-			// ポイント付与額を計算する。
-			point += (int)((totalPrice - paymentDialog.getPaidPoint())*0.01);
-		}
 
 		// お預かり額とおつりを商品チェック画面に表示する。
 		checkArticlesScreenPanel.setPaidPrice(paidPrice);
@@ -355,8 +377,12 @@ public class POSTerminalApp {
 		// データベースを更新する。
 		//@@@ 未実装
 		try {
-			if(memberUnderManagement!=null) {
-				dbServerIF.point_granted(memberUnderManagement.getID(), point);
+			if(memberUnderChecking!=null) {
+				checkArticlesScreenPanel.updatePoint(point);
+				dbServerIF.point_granted(memberUnderChecking.getID(), point);
+				for(int idx = 0; idx < salesUnderChecking.getNumOfSales(); idx++) {
+					dbServerIF.updateSales(memberUnderChecking.getID(), salesUnderChecking.getIthSale(idx));
+				}
 			}
 		}
 		catch (DBServerIFException ex) {
@@ -365,7 +391,6 @@ public class POSTerminalApp {
 			JOptionPane.showMessageDialog(frame, ex.getMessage(), "エラー", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
-
 		// 商品チェック画面を決済済み状態にする。
 		checkArticlesScreenPanel.setState(CheckArticlesScreenPanelState.PaymentFinished);
 		return true;
