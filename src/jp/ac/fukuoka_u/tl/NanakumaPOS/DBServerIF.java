@@ -79,7 +79,7 @@ public class DBServerIF {
 		}
 		return article;
 	}
-	
+
 	/*
 	 * 会員番号 membershipID の会員を検索する。
 	 */
@@ -134,13 +134,6 @@ public class DBServerIF {
 			stmt.close();
 		}
 		catch (SQLException ex) {
-			/*
-			if(ex.getErrorCode() == 1062) {
-				throw new DBServerIFException("この会員情報はすでに登録済みです。");
-			}
-
-			else
-			*/
 			throw new DBServerIFException("SQLException: " + ex.getMessage());
 		}
 	}
@@ -177,8 +170,7 @@ public class DBServerIF {
 			Statement stmt = conn.createStatement();
 			String sql = "delete from membertbl where id='" + memberID + "';";
 			stmt.executeUpdate(sql);
-			//購入履歴のテーブル名未記入
-			sql = "delete from purchaseHistorytbl where id='" + memberID + "';";
+			sql = "delete from salesHistorytbl where id='" + memberID + "';";
 			stmt.executeUpdate(sql);
 
 			stmt.close();
@@ -187,10 +179,10 @@ public class DBServerIF {
 			throw new DBServerIFException("SQLException: " + ex.getMessage());
 		}
 	}
-	
-	/* 
-	 * ポイントを付与する。 
-	*/ 
+
+	/*
+	 * ポイントを付与する。
+	*/
 	public void point_granted(String memberID, int point) throws DBServerIFException {
 		try {
 			Statement stmt = conn.createStatement();
@@ -201,7 +193,24 @@ public class DBServerIF {
 		catch (SQLException ex) {
 			throw new DBServerIFException("SQLException: " + ex.getMessage());
 		}
-		
+
 	}
+
+	/*
+	 * 購入した商品の情報を商品履歴に追加する。
+	 */
+	public void updateArticle(String memberID, Sale article) throws DBServerIFException {
+		try {
+			Statement stmt = conn.createStatement();
+			String sql = "insert into salesHistorytbl values('"  + memberID + "', '" + article.getArticleCode() + "', " + article.getSalesQuantity()  + ", curdate());";
+			stmt.executeUpdate(sql);
+			stmt.close();
+		}
+
+		catch (SQLException ex) {
+			throw new DBServerIFException("SQLException: " + ex.getMessage());
+		}
+	}
+
 
 }
