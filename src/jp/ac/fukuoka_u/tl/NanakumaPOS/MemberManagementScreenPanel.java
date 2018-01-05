@@ -185,7 +185,8 @@ public class MemberManagementScreenPanel extends JPanel implements ActionListene
 		homeButton.addActionListener(this);
 		homeButton.setActionCommand("home");
 		add(homeButton);
-
+		
+		
 		setState(MemberManagementScreenPanelState.NoOperation);
 	}
 
@@ -298,6 +299,7 @@ public class MemberManagementScreenPanel extends JPanel implements ActionListene
 		memberIDField.setText(null);
 		memberNameField.setText(null);
 		memberFuriganaField.setText(null);
+		memberGenderMaleRadioButton.setSelected(true);;
 	}
 
 	/*
@@ -306,12 +308,13 @@ public class MemberManagementScreenPanel extends JPanel implements ActionListene
 	private void memberRegistrationConfirmed() {
 		Gender gender = Gender.Male;
 		Member member = new Member("", "", "", gender,0);
-		
-		if (JOptionPane.showConfirmDialog(frame,  "会員登録しますか？", "確認", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
-			if (!validateMemberInfo()) {
-				return;
-			} else {
-			//@@@ データベースに会員登録を依頼する部分は未実装。
+
+		if (!validateMemberInfo()) {
+			return;
+		} else {
+			if (JOptionPane.showConfirmDialog(frame,  "会員登録しますか？", "確認", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
+
+				//@@@ データベースに会員登録を依頼する部分は未実装。
 				if(memberGenderMaleRadioButton.isSelected()) {
 					gender = Gender.Male;
 				} else if (memberGenderFemaleRadioButton.isSelected()) {
