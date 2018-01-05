@@ -213,7 +213,7 @@ public class CheckArticlesScreenPanel extends JPanel implements ActionListener, 
 		pointField.setBackground(Color.CYAN);
 		pointField.setEditable(false);
 		add(pointField);
-		
+
 		// お預かり欄を生成する。
 		paidPriceLabel = new JLabel("お預かり");
 		paidPriceLabel.setBounds(616, 568, 100, 24);
@@ -263,7 +263,7 @@ public class CheckArticlesScreenPanel extends JPanel implements ActionListener, 
 			articleCodeButton.setEnabled(true);
 			memberIDField.setText("");
 			memberNameField.setText("");
-			pointField.setText("1");
+			pointField.setText("");
 			paidPriceField.setText("");
 			totalPriceField.setText("0");
 			changePriceField.setText("");
@@ -510,6 +510,14 @@ public class CheckArticlesScreenPanel extends JPanel implements ActionListener, 
 			memberIDField.setText(member.getID());
 			memberNameField.setText(member.getName());
 			pointField.setText(Integer.toString(member.getPoint()));
+
 		}
+	}
+
+	/*
+	 * 会員のポイント情報を更新する。
+	 */
+	public void updatePoint(int point) {
+		pointField.setText(Integer.toString(point));
 	}
 }
