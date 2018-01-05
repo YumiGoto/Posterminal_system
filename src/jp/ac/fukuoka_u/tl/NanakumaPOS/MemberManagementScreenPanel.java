@@ -185,8 +185,8 @@ public class MemberManagementScreenPanel extends JPanel implements ActionListene
 		homeButton.addActionListener(this);
 		homeButton.setActionCommand("home");
 		add(homeButton);
-		
-		
+
+
 		setState(MemberManagementScreenPanelState.NoOperation);
 	}
 

@@ -24,7 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 public class PaymentDialog extends JDialog implements ActionListener{
-	
+
 	/* データ */
 	// 合計金額
 	private int totalPrice;
@@ -32,13 +32,8 @@ public class PaymentDialog extends JDialog implements ActionListener{
 	private int paidPrice;
 	// 所有ポイント
 	private int point;
-	// 利用ポイント
-	private int paidPoint;
 	// OKボタンが押されたか
 	private Boolean confirmed;
-	// ポイント会員かどうか
-	private Boolean memberConfirmed;
-	private Boolean pointConfirmed;
 
 	/* ウィジェット */
 	private JFrame owner;
@@ -51,16 +46,6 @@ public class PaymentDialog extends JDialog implements ActionListener{
 	// お預かり欄
 	private JTextField paidPriceField;
 
-	// 利用ポイントラベル
-	private JLabel paidPointLabel;
-	// 利用ポイント欄
-	private JTextField paidPointField;
-	// 残額ラベル
-	private JLabel balanceLabel;
-	// 残額欄
-	private JTextField balanceField;
-	// ポイント利用ボタン
-	private JButton pointButton;
 	// 決済ボタン
 	private JButton okButton;
 	// 中止ボタン
@@ -75,10 +60,7 @@ public class PaymentDialog extends JDialog implements ActionListener{
 		totalPrice = _totalPrice;
 		point = _point;
 		confirmed = false;
-		if(point!=-1) memberConfirmed = false;
-		else memberConfirmed = true;
-		pointConfirmed = false;
-
+		
 		setLayout(null);
 		setTitle("決済");
 		setSize(248, 175);
@@ -98,61 +80,33 @@ public class PaymentDialog extends JDialog implements ActionListener{
 		totalPriceField.setEditable(false);
 		totalPriceField.setFocusable(false);
 		totalPriceField.setText(Integer.toString(totalPrice));
-		totalPriceField.setVisible(!pointConfirmed);
 		contentPane.add(totalPriceField);
 		
-		// 利用ポイント欄を生成する。
-		paidPointLabel = new JLabel("利用ポイント",0);
-		paidPointLabel.setBounds(16, 48, 100, 24);
-		contentPane.add(paidPointLabel);
-		paidPointField = new JTextField (8);
-		paidPointField.setBounds(116,48, 100, 24);
-		paidPointField.setBackground(Color.YELLOW);
-		paidPointField.setHorizontalAlignment(JTextField.RIGHT);
-		paidPointField.setEditable(memberConfirmed&&!pointConfirmed);
-		contentPane.add(paidPointField);
-
-		
-		// 残額欄を生成する。
-		balanceLabel = new JLabel("残額");
-		balanceLabel.setBounds(16, 16, 100, 24);
-		contentPane.add(balanceLabel);
-		balanceField = new JTextField (8);
-		balanceField.setBounds(116, 16, 100, 24);
-		balanceField.setBackground(Color.YELLOW);
-		balanceField.setHorizontalAlignment(JTextField.RIGHT);
-		balanceField.setEditable(false);
-		balanceField.setFocusable(false);
-		balanceField.setText(Integer.toString(totalPrice-paidPoint));
-		balanceField.setVisible(pointConfirmed);
-		contentPane.add(balanceField);
-		
 		// お預かり欄を生成する。
-		paidPriceLabel = new JLabel("お預かり");
+		paidPriceLabel = new JLabel();
+		paidPriceField = new JTextField (8);
+		if(point==-1) paidPriceLabel.setText("お預かり");
+		else {
+			paidPriceLabel.setText("利用ポイント");
+			paidPriceField.setText("0");
+			paidPriceField.selectAll();
+		}
 		paidPriceLabel.setBounds(16, 48, 100, 24);
 		contentPane.add(paidPriceLabel);
-		paidPriceField = new JTextField (8);
 		paidPriceField.setBounds(116, 48, 100, 24);
 		paidPriceField.setBackground(Color.YELLOW);
 		paidPriceField.setHorizontalAlignment(JTextField.RIGHT);
-		paidPriceField.setEditable(true);
-		paidPriceField.setVisible(!memberConfirmed||pointConfirmed);
+		totalPriceField.setEditable(true);
 		contentPane.add(paidPriceField);
 
-		// ポイント利用ボタンを生成する。
-		pointButton = new JButton("ポイント利用");
-		pointButton.setBounds(26, 96, 80, 24);
-		pointButton.addActionListener(this);
-		pointButton.setActionCommand("point");
-		pointButton.setVisible(memberConfirmed&&!pointConfirmed);
-		contentPane.add(pointButton);
-		
+
 		// OKボタンを生成する。
-		okButton = new JButton("決済");
+		okButton = new JButton();
+		if(point==-1) okButton.setText("決済");
+		else okButton.setText("次へ");
 		okButton.setBounds(26, 96, 80, 24);
 		okButton.addActionListener(this);
 		okButton.setActionCommand("ok");
-		okButton.setVisible(!memberConfirmed||pointConfirmed);
 		contentPane.add(okButton);
 
 		// キャンセルボタンを生成する。
@@ -161,8 +115,11 @@ public class PaymentDialog extends JDialog implements ActionListener{
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand("cancel");
 		contentPane.add(cancelButton);
+		
+		
 	}
 
+		
 	/*
 	 * 決済ダイアログを閉じるときにOKボタンが押されたかを返す。
 	 */
@@ -176,14 +133,6 @@ public class PaymentDialog extends JDialog implements ActionListener{
 	public int getPaidPrice() {
 		return paidPrice;
 	}
-	
-	/*
-	 * 利用ポイントを返す。
-	 */
-	public int getPaidPoint() {
-		return paidPrice;
-	}
-	
 	
 
 	/*
@@ -217,25 +166,28 @@ public class PaymentDialog extends JDialog implements ActionListener{
 		dispose();
 	}
 	/*
-	 * ポイント利用の意思が確認されたときに呼び出される。
+	 * ポイント入力を終えたときに呼び出される。
 	 */
-	private void Point() {
+	private void pointConfirmed() {
 		try {
-			paidPoint = Integer.parseInt(paidPointField.getText());
+			paidPrice = Integer.parseInt(paidPriceField.getText());
 		}
 		catch (NumberFormatException ex) {
-			paidPoint = 0;
+			paidPrice = 0;
 			JOptionPane.showMessageDialog(owner, "ポイントの入力が不正です。", "エラー", JOptionPane.ERROR_MESSAGE);
-			paidPointField.requestFocusInWindow();
+			paidPriceField.requestFocusInWindow();
 			return;
 		}
-		if(paidPoint > point) {
+		if(paidPrice > point) {
 			JOptionPane.showMessageDialog(owner, "入力したポイントが所有ポイントを超えています。", "エラー", JOptionPane.ERROR_MESSAGE);
-			paidPointField.requestFocusInWindow();
+			paidPriceField.requestFocusInWindow();
 			return;
 		}
-		pointConfirmed=true;
-
+		if(paidPrice > totalPrice) {
+			paidPrice = totalPrice;
+		}
+		confirmed = true;
+		dispose();
 	}
 
 	/*
@@ -243,11 +195,10 @@ public class PaymentDialog extends JDialog implements ActionListener{
 	 */
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("ok")) {
-			paymentConfirmed();
+			if(point!=-1) pointConfirmed();
+			else paymentConfirmed();
 		} else if (e.getActionCommand().equals("cancel")) {
 			paymentCancelled();
-		} else if(e.getActionCommand().equals("point")) {
-			Point();
 		}
 	}
 }
